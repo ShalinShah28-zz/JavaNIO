@@ -14,16 +14,17 @@ public class Client1 {
         SocketChannel client = SocketChannel.open(hA);
         System.out.println("The Client is sending messages to server...");
         // Sending messages to the server
-//        String [] msg = new String [] {"shalinshah", "Bye Bye"};
-//        for (int j = 0; j < msg.length; j++) {
-//            byte [] message = new String(msg [j]).getBytes();
-//            System.out.println("bytes: " + message.length);
-//            ByteBuffer buffer = ByteBuffer.wrap(message);
-//            client.write(buffer);
-//            System.out.println(msg [j]);
-//            buffer.clear();
-//            Thread.sleep(3000);
-//        }
-//        client.close();
+        String [] msg = new String [] {"shali", ""};
+        for (int j = 0; j < msg.length; j++) {
+            byte [] message = new String(msg [j]).getBytes();
+            System.out.println("bytes: " + message.length);
+            ByteBuffer buffer = ByteBuffer.wrap(message);
+            client.write(buffer);
+            System.out.println(msg [j]);
+            buffer.clear();
+            Thread.sleep(3000);
+        }
+        Thread.sleep(100000);
+        client.close();
     }
 }

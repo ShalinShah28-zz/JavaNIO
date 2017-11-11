@@ -13,7 +13,7 @@ import java.util.Set;
  */
 public class Server {
     public static void main (String [] args)
-            throws IOException {
+            throws IOException, InterruptedException {
         // Get the selector
         Selector selector = Selector.open();
         System.out.println("Selector is open for making connection: " + selector.isOpen());
@@ -23,7 +23,7 @@ public class Server {
         SS.bind(hostAddress);
         SS.configureBlocking(false);
         int ops = SS.validOps();
-        SelectionKey selectKy = SS.register(selector, ops, null);
+        SS.register(selector, ops, null);
         //SocketChannel client;
         int cnt=0;
         for (int i=0;i<10;i++) {
@@ -35,21 +35,30 @@ public class Server {
             Iterator itr = selectedKeys.iterator();
             while (itr.hasNext()) {
                 SelectionKey ky = (SelectionKey) itr.next();
+                System.out.println("key: " + ky.channel());
                 if (ky.isAcceptable()) {
                     System.out.println("Inside isAcceptable");
                     //The new client connection is accepted
                     SocketChannel client = SS.accept();
                     client.configureBlocking(false);
+
                     //The new connection is added to a selector
                     client.register(selector, SelectionKey.OP_READ);
                     System.out.println("The new connection is accepted from the client: " + client);
+                    //Thread.sleep(5000);
                 }
                 else if (ky.isReadable()) {
                     System.out.println("Inside isReadable");
                     // Data is read from the client
                     SocketChannel client = (SocketChannel) ky.channel();
-                    ByteBuffer buffer = ByteBuffer.allocate(7);
-                    client.read(buffer);
+                    ByteBuffer buffer = ByteBuffer.allocate(5);
+                    int bytesRead = client.read(buffer);
+                    // If bytesRead = -1, then the client has closed the connection
+                    System.out.println("total bytes read: " + bytesRead);
+                    if(bytesRead == -1) {
+                        ky.cancel();
+                        client.close();
+                    }
                     String output = new String(buffer.array()).trim();
                     System.out.println("Message read from client: " + output);
                     if (output.equals("Bye Bye")) {
@@ -58,9 +67,9 @@ public class Server {
                     }
                 }
                 cnt++;
-                if(cnt==1) {
+                //if(cnt==1) {
                     itr.remove();
-                }
+                //}
             } // end of while loop
         } // end of for loop
     }
