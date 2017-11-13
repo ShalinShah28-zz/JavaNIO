@@ -61,10 +61,6 @@ public class Server {
                     }
                     String output = new String(buffer.array()).trim();
                     System.out.println("Message read from client: " + output);
-                    if (output.equals("Bye Bye")) {
-                        client.close();
-                        System.out.println("The Client messages are complete; close the session.");
-                    }
                 }
                 itr.remove();
             } // end of while loop
