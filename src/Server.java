@@ -26,9 +26,10 @@ public class Server {
         SS.register(selector, ops, null);
         //SocketChannel client;
         int cnt=0;
-        for (int i=0;i<10;i++) {
+        ByteBuffer buffer = ByteBuffer.allocate(5);
+        for (int i=0;i<100;i++) {
             System.out.println("Waiting for the select operation...");
-            int noOfKeys = selector.select();
+            int noOfKeys = selector.selectNow();
             System.out.println("The number of selected keys are: " + noOfKeys);
             Set selectedKeys = selector.selectedKeys();
             System.out.println("The size of the selected-keys set is: " + selectedKeys.size());
@@ -51,26 +52,34 @@ public class Server {
                     System.out.println("Inside isReadable");
                     // Data is read from the client
                     SocketChannel client = (SocketChannel) ky.channel();
-                    ByteBuffer buffer = ByteBuffer.allocate(5);
-                    int bytesRead = client.read(buffer);
+                    int bytesRead;
+                    do {
+                        bytesRead = client.read(buffer);
+                    } while(bytesRead != 0);
                     // If bytesRead = -1, then the client has closed the connection
                     System.out.println("total bytes read: " + bytesRead);
                     if(bytesRead == -1) {
                         ky.cancel();
                         client.close();
                     }
-                    String output = new String(buffer.array()).trim();
+                    buffer.flip();
+                    byte[] bytes = new byte[4];
+                    for(int x = 0; x < 4; ++x) bytes[x] = buffer.get();
+                    String output = new String(bytes);
                     System.out.println("Message read from client: " + output);
                     if (output.equals("Bye Bye")) {
                         client.close();
                         System.out.println("The Client messages are complete; close the session.");
                     }
+                    buffer.compact();
                 }
                 cnt++;
                 //if(cnt==1) {
                     itr.remove();
                 //}
             } // end of while loop
+            System.out.println("itr: " + selectedKeys);
+            Thread.sleep(1000);
         } // end of for loop
     }
 
