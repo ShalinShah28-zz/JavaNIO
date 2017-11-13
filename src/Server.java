@@ -66,10 +66,7 @@ public class Server {
                         System.out.println("The Client messages are complete; close the session.");
                     }
                 }
-                cnt++;
-                //if(cnt==1) {
-                    itr.remove();
-                //}
+                itr.remove();
             } // end of while loop
         } // end of for loop
     }
